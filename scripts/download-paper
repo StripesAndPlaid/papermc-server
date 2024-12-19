@@ -21,6 +21,7 @@ build=$(curl -s $paper_api/versions/$version/builds | jq -r '.builds | map(selec
 
 if [ "$build" != "null" ]; then
     # Download JAR file
+    echo "Downloading Paper version $version..."
     jar=$(curl -s $paper_api/versions/$version/builds/$build | jq -r .downloads.application.name)
     curl -o paper.jar $paper_api/versions/$version/builds/$build/downloads/$jar
 else
