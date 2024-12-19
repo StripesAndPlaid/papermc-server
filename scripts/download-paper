@@ -5,15 +5,15 @@ paper_api=https://api.papermc.io/v2/projects/paper
 # Check arguments
 if [ $# -eq 1 ]; then
     version=$1;
+    # Check if the version specified is valid
+    if ! curl -s $paper_api | jq -r .versions[] | grep -qx $version; then
+        echo "Invalid Paper version: $version"
+        exit 1
+    fi
 elif [ $# -eq 0 ]; then
     # If no version specified, pull the latest
     version=$(curl -s $paper_api | jq -r .versions[-1])
-fi
-
-# Check version
-if ! curl -s $paper_api | jq -r .versions | grep -q $version; then
-    echo "Invalid Paper version: $version"
-    exit 1
+    echo "No version specified. Using version $version..."
 fi
 
 # Get latest stable build for specified version
