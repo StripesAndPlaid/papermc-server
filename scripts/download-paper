@@ -1,0 +1,24 @@
+#!/bin/sh
+
+paper_api=https://api.papermc.io/v2/projects/paper
+
+# Check arguments
+if [ $# -eq 1 ]; then
+    version=$1;
+elif [ $# -eq 0 ]; then
+    # If no version specified, pull the latest
+    version=$(curl -s $paper_api | jq -r .versions[-1])
+fi
+
+# Check version
+if curl -s $paper_api | jq .versions | grep -q \"$version\"; then
+    echo "Downloading Paper version $version..."
+else
+    echo "Invalid Paper version: $version"
+    exit 1
+fi
+
+# Download new paperclip.jar
+build=$(curl -s $paper_api/versions/$version | jq .builds[-1])
+jar=$(curl -s $paper_api/versions/$version/builds/$build | jq -r .downloads.application.name)
+curl -o paper.jar $paper_api/versions/$version/builds/$build/downloads/$jar 
