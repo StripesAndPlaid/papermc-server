@@ -11,14 +11,19 @@ elif [ $# -eq 0 ]; then
 fi
 
 # Check version
-if curl -s $paper_api | jq .versions | grep -q \"$version\"; then
-    echo "Downloading Paper version $version..."
-else
+if ! curl -s $paper_api | jq -r .versions | grep -q $version; then
     echo "Invalid Paper version: $version"
     exit 1
 fi
 
-# Download new paperclip.jar
-build=$(curl -s $paper_api/versions/$version | jq .builds[-1])
-jar=$(curl -s $paper_api/versions/$version/builds/$build | jq -r .downloads.application.name)
-curl -o paper.jar $paper_api/versions/$version/builds/$build/downloads/$jar 
+# Get latest stable build for specified version
+build=$(curl -s $paper_api/versions/$version/builds | jq -r '.builds | map(select(.channel == "default") | .build) | .[-1]')
+
+if [ "$build" != "null" ]; then
+    # Download JAR file
+    jar=$(curl -s $paper_api/versions/$version/builds/$build | jq -r .downloads.application.name)
+    curl -o paper.jar $paper_api/versions/$version/builds/$build/downloads/$jar
+else
+    echo "No stable build for version $version found. Please specify an earlier version."
+    exit 1
+fi
