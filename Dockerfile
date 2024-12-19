@@ -1,15 +1,15 @@
-FROM eclipse-temurin:21
+FROM eclipse-temurin:21-jdk-alpine
 
 # Define environment variables
 ENV EULA=false
 ENV UPDATE=false
+ENV JAVA_RAM="2G"
 
 # Install dependencies and add user
-RUN apt update && apt install -y jq && \
-    useradd -m -d /home/paper -s /bin/bash paper && \
+RUN apk update && apk add --no-cache curl jq udev && \
+    adduser -D -h /home/paper paper && \
     mkdir -p /home/paper/data /home/paper/scripts && \
-    chown -R paper:paper /home/paper && \
-    apt clean && rm -rf /var/lib/apt/lists/*
+    chown -R paper:paper /home/paper
 
 # Set working directory and switch user
 WORKDIR /home/paper/data
