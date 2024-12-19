@@ -1,9 +1,9 @@
 FROM eclipse-temurin:21-jdk-alpine
 
 # Define environment variables
-ENV EULA=false
-ENV UPDATE=false
-ENV JAVA_RAM="2G"
+ENV EULA=false \
+    UPDATE=false \
+    JAVA_RAM=2G
 
 # Install dependencies and add user
 RUN apk update && apk add --no-cache curl jq udev && \
