@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Server directory
+server_dir="/home/minecraft/server"
+
+# Memory allocation
+memory_min="2G"
+memory_max="2G"
+
+# Aikar's recommended JVM flags
+jvm_flags=(
+    -XX:+AlwaysPreTouch
+    -XX:+DisableExplicitGC
+    -XX:+ParallelRefProcEnabled
+    -XX:+PerfDisableSharedMem
+    -XX:+UnlockExperimentalVMOptions
+    -XX:+UseG1GC
+    -XX:G1HeapRegionSize=8M
+    -XX:G1HeapWastePercent=5
+    -XX:G1MaxNewSizePercent=40
+    -XX:G1MixedGCCountTarget=4
+    -XX:G1MixedGCLiveThresholdPercent=90
+    -XX:G1NewSizePercent=30
+    -XX:G1RSetUpdatingPauseTimePercent=5
+    -XX:G1ReservePercent=20
+    -XX:InitiatingHeapOccupancyPercent=15
+    -XX:MaxGCPauseMillis=200
+    -XX:MaxTenuringThreshold=1
+    -XX:SurvivorRatio=32
+    -Dusing.aikars.flags=https://mcflags.emc.gs
+    -Daikars.new.flags=true
+)
+
+# Check if server is already running
+if ! screen -ls | grep -qF "minecraft-server"; then
+    printf "Starting server... "
+    screen -dmS minecraft-server bash -c "cd '$server_dir' && java -Xms$memory_min -Xmx$memory_max ${jvm_flags[*]} -jar paper.jar nogui"
+else
+    printf "Server is already running. "
+fi
+
+echo "Run \"mc\" to attach."

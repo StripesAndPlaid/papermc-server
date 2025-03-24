@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Check if jq is installed
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is not installed. Please install jq and try again."
+    exit 1
+fi
+
+paper_api="https://api.papermc.io/v2/projects/paper"
+
+# Check if the server is running
+if screen -ls | grep -qF "minecraft-server"; then
+    echo "Server is running. Please stop server before updating."
+    exit 1
+fi
+
+# Check arguments and get version
+if [[ $# -eq 1 ]]; then
+    version="$1"
+    # Check if the version specified is valid
+    if ! curl -s "$paper_api" | jq -r .versions[] | grep -qx "$version"; then
+        echo "Invalid Paper version: $version"
+        exit 1
+    fi
+elif [[ $# -eq 0 ]]; then
+    # If no version specified, use the latest
+    version=$(curl -s "$paper_api" | jq -r '.versions | .[-1]')
+    echo "No version specified. Using version $version..."
+fi
+
+# Get latest stable build for the specified version
+build=$(curl -s "$paper_api/versions/$version/builds" | jq -r '.builds | map(select(.channel == "default") | .build) | .[-1]')
+
+if [[ "$build" != "null" ]]; then
+    # Download JAR file
+    echo "Downloading Paper version $version..."
+    jar=$(curl -s "$paper_api/versions/$version/builds/$build" | jq -r .downloads.application.name)
+    curl -o /home/minecraft/server/paper.jar "$paper_api/versions/$version/builds/$build/downloads/$jar"
+else
+    echo "No stable build for version $version found. Please specify an earlier version."
+    exit 1
+fi

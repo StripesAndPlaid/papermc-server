@@ -1,0 +1,76 @@
+#!/bin/bash
+
+server_dir="/home/minecraft/server"
+force=false
+
+usage() {
+    echo "Usage: $(basename "$0") [-f] [archive]"
+    echo
+    echo "Options:"
+    echo "  -f       Force stop and restart the server without confirmation."
+    echo "  archive  The path to the backup archive to restore."
+    exit 1
+}
+
+restore() {
+    printf "Restoring %s... " "$(basename "$1")"
+    
+    rm -r "$server_dir/world" "$server_dir/world_nether" "$server_dir/world_the_end"
+    
+    if tar -xzf "$1" -C "$server_dir"; then
+        echo "done!"
+    else
+        echo "Failed to extract the archive."
+        exit 1
+    fi
+}
+
+while getopts ":f" opt; do
+    case "$opt" in
+        f)
+            force=true
+            ;;
+        ?)
+            echo "Invalid option: -$OPTARG" >&2
+            usage
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))  # Move to the next non-option argument
+
+# Check if the archive file is provided
+if [[ $# -eq 0 ]]; then
+    echo "Error: Archive file must be provided."
+    usage
+fi
+
+if screen -ls | grep -qF "minecraft-server"; then
+    # Server is running, check if force is set
+    if [[ $force == true ]]; then
+        echo "Force stopping and restarting server..."
+        /home/minecraft/scripts/stop
+        restore "$1"
+        /home/minecraft/scripts/start
+    else
+        echo "Server is running... Stop the server before restoring."
+    fi
+else
+    if [[ -f "$1" ]]; then
+        # Proceed with the restore if server is not running
+        if [[ $force == true ]]; then
+            echo "Server is not running, skipping confirmation prompt."
+            restore "$1"
+        else
+            echo "Restoring $(basename "$1") will remove all current server data. Do you wish to continue? (y/n)"
+            read -r yes_no
+            case "$yes_no" in
+                [Yy]*) restore "$1" ;;
+                [Nn]*) echo "Aborting..."; exit 0 ;;
+                *) echo "Invalid response. Aborting..."; exit 1 ;;
+            esac
+        fi
+    else
+        echo "Archive file \"$1\" does not exist."
+    fi
+fi

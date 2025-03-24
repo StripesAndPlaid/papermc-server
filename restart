@@ -1,0 +1,44 @@
+#!/bin/bash
+
+countdown=false
+
+usage() {
+    echo "Usage: $(basename "$0") [-c]"
+    echo
+    echo "Options:"
+    echo "  -c  Enable 30-minute countdown before restart"
+    exit 1
+}
+
+# Check for options
+while getopts ":c" opt; do
+    case "$opt" in
+        c) countdown=true ;;
+        ?) echo "Invalid option: -$OPTARG" >&2; usage ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+# Check if server is running
+if screen -ls | grep -qF "minecraft-server"; then
+    if [[ "$countdown" == true ]]; then
+        message="The server will restart in"
+
+        for time in "30 minutes" "10 minutes" "5 minutes" "1 minute"; do
+            screen -S minecraft-server -X stuff "say $message $time^M"
+            sleep "${time% *}m"  # Extract numeric part and sleep
+        done
+
+        for ((i = 10; i > 1; i--)); do
+            screen -S minecraft-server -X stuff "say $message $i seconds^M"
+            sleep 1
+        done
+
+        screen -S minecraft-server -X stuff "say $message 1 second^M"
+        sleep 1
+    fi
+
+    /home/minecraft/scripts/stop
+fi
+
+/home/minecraft/scripts/start
