@@ -25,7 +25,7 @@ if [[ $# -eq 1 ]]; then
 elif [[ $# -eq 0 ]]; then
     # If no version specified, use the latest
     version=$(curl -s "$paper_api" | jq -r '.versions | .[-1]')
-    echo "No version specified. Using version $version..."
+    echo "No version specified. Using latest ($version)."
 fi
 
 # Get latest stable build for the specified version
