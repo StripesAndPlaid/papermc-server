@@ -63,8 +63,7 @@ if screen -ls | grep -qF "minecraft-server"; then
         done
     fi
 
-    screen -S minecraft-server -X stuff "say SIKE!^M"
-    # /home/minecraft/scripts/stop
+    /home/minecraft/scripts/stop
 fi
 
-# /home/minecraft/scripts/start
+/home/minecraft/scripts/start
