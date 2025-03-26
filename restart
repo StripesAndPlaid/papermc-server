@@ -14,16 +14,16 @@ get_time_label() {
     local time_label
 
     # Set time_label based on time value (minutes or seconds)
-    if (($1 / 60 > 0)); then
+    if (( $1 / 60 > 0 )); then
         # If warning is 1 minute, use singular "minute", otherwise pluralize
-        if (($1 / 60 == 1)); then
+        if (( $1 / 60 == 1 )); then
             time_label="1 minute"
         else
             time_label="$(($1 / 60)) minutes"
         fi
     else
         # If warning is 1 second, use singular "second", otherwise pluralize
-        if (($1 == 1)); then
+        if (( $1 == 1 )); then
             time_label="1 second"
         else
             time_label="$1 seconds"
@@ -40,30 +40,31 @@ while getopts ":c" opt; do
         ?) echo "Invalid option: -$OPTARG" >&2; usage ;;
     esac
 done
-shift $((OPTIND - 1))
+shift $(( OPTIND - 1 ))
 
 # Check if server is running
 if screen -ls | grep -qF "minecraft-server"; then
     if [[ "$countdown" == true ]]; then
         message="The server will restart in"
-        total_time=$((1800))  # Countdown in seconds
-        end_time=$((SECONDS + total_time))  # Absolute time when restart should happen
+        total_time=1800 # Countdown in seconds
+        end_time=$(( SECONDS + total_time ))  # Absolute time when restart should happen
         
         # Define warning intervals (in seconds before restart)
         warnings=($total_time 600 300 60 10 9 8 7 6 5 4 3 2 1)
         i=0
 
-        while ((SECONDS < end_time)); do
-            if ((i < ${#warnings[@]} && end_time - SECONDS <= warnings[i])); then
+        while (( SECONDS < end_time )); do
+            if (( i < ${#warnings[@]} && end_time - SECONDS <= warnings[i] )); then
                 # Send warning to server
                 screen -S minecraft-server -X stuff "say $message $(get_time_label ${warnings[i]})^M"
-                ((i++))
+                (( i++ ))
             fi
             sleep 1
         done
     fi
 
-    /home/minecraft/scripts/stop
+    screen -S minecraft-server -X stuff "say SIKE!^M"
+    # /home/minecraft/scripts/stop
 fi
 
-/home/minecraft/scripts/start
+# /home/minecraft/scripts/start

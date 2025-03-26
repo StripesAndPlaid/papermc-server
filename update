@@ -1,5 +1,13 @@
 #!/bin/bash
 
+usage() {
+    echo "Usage: $(basename "$0") [version]"
+    echo
+    echo "Options:"
+    echo "  version  The specific Paper version to update to."
+    exit 1
+}
+
 # Check if jq is installed
 if ! command -v jq >/dev/null 2>&1; then
     echo "Error: jq is not installed. Please install jq and try again."
@@ -15,17 +23,17 @@ if screen -ls | grep -qF "minecraft-server"; then
 fi
 
 # Check arguments and get version
-if [[ $# -eq 1 ]]; then
-    version="$1"
+if (( $# == 0 )); then
+    # If no version specified, use the latest
+    version=$(curl -s "$paper_api" | jq -r '.versions | .[-1]')
+    echo "No version specified. Using latest ($version)."
+else
     # Check if the version specified is valid
+    version="$1"
     if ! curl -s "$paper_api" | jq -r .versions[] | grep -qx "$version"; then
         echo "Invalid Paper version: $version"
         exit 1
     fi
-elif [[ $# -eq 0 ]]; then
-    # If no version specified, use the latest
-    version=$(curl -s "$paper_api" | jq -r '.versions | .[-1]')
-    echo "No version specified. Using latest ($version)."
 fi
 
 # Get latest stable build for the specified version

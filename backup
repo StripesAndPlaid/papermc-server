@@ -16,14 +16,14 @@ fi
 file_count=$(ls "$backup_dir" | wc -l)
 
 # Remove oldest backup if exceeding limit
-if ((file_count > max_file_count)); then
+if (( file_count > max_file_count )); then
     rm "$backup_dir/world-$max_file_count.tgz"
-    ((file_count--))
+    (( file_count-- ))
 fi
 
 # Rename backups to maintain order
-for ((i=file_count; i>0; i--)); do
-    if ((i > 1)); then
+for (( i = file_count; i > 0; i-- )); do
+    if (( i > 1 )); then
         mv "$backup_dir/world-$((i-1)).tgz" "$backup_dir/world-$i.tgz"
     else
         mv "$backup_dir/world.tgz" "$backup_dir/world-1.tgz"

@@ -40,7 +40,7 @@ done
 shift $((OPTIND - 1))  # Move to the next non-option argument
 
 # Check if the archive file is provided
-if [[ $# -eq 0 ]]; then
+if (( $# == 0 )); then
     echo "Error: Archive file must be provided."
     usage
 fi
