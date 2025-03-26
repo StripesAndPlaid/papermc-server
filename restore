@@ -59,10 +59,9 @@ else
     if [[ -f "$1" ]]; then
         # Proceed with the restore if server is not running
         if [[ $force == true ]]; then
-            echo "Server is not running, skipping confirmation prompt."
             restore "$1"
         else
-            echo "Restoring $(basename "$1") will remove all current server data. Do you wish to continue? (y/n)"
+            printf "Restoring $(basename "$1") will remove all current server data. Do you wish to continue? (y/n) "
             read -r yes_no
             case "$yes_no" in
                 [Yy]*) restore "$1" ;;
