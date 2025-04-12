@@ -13,7 +13,7 @@ usage() {
 }
 
 restore() {
-    printf "Restoring %s... " "$(basename "$1")"
+    printf "Restoring $(basename \"$1\")... "
     
     rm -r "$server_dir/world" "$server_dir/world_nether" "$server_dir/world_the_end"
     
@@ -36,7 +36,6 @@ while getopts ":f" opt; do
             ;;
     esac
 done
-
 shift $((OPTIND - 1))  # Move to the next non-option argument
 
 # Check if the archive file is provided
@@ -61,13 +60,13 @@ else
         if [[ $force == true ]]; then
             restore "$1"
         else
-            printf "Restoring $(basename "$1") will remove all current server data. Do you wish to continue? (y/n) "
-            read -r yes_no
-            case "$yes_no" in
-                [Yy]*) restore "$1" ;;
-                [Nn]*) echo "Aborting..."; exit 0 ;;
-                *) echo "Invalid response. Aborting..."; exit 1 ;;
-            esac
+            read -rp "Restoring $(basename \"$1\") will remove all current server data. Do you wish to continue? [y/N] " yes_no
+            if [[ "$confirm" =~ ^[Yy]$ ]]; then
+                restore "$1"
+            else
+                echo "Aborting..."
+                exit 0
+            fi
         fi
     else
         echo "Archive file \"$1\" does not exist."
