@@ -60,7 +60,7 @@ else
         if [[ $force == true ]]; then
             restore "$1"
         else
-            read -rp "Restoring $(basename \"$1\") will remove all current server data. Do you wish to continue? [y/N] " yes_no
+            read -rp "Restoring $(basename \"$1\") will remove all current server data. Do you wish to continue? [y/N] " confirm
             if [[ "$confirm" =~ ^[Yy]$ ]]; then
                 restore "$1"
             else
