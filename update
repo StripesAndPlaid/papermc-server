@@ -71,8 +71,7 @@ if [[ "$confirm" =~ ^[Yy]$ ]]; then
     download_url=$(curl -s "$paper_api/$version/builds/$build" | jq -r '.downloads["server:default"].url')
     echo "Downloading server jar..."
     echo $download_url
-    curl -o test.jar $download_url
-    # curl -o /home/minecraft/server/paper.jar $download_url
+    curl -o /home/minecraft/server/paper.jar $download_url
     echo "Update complete. You can now restart your server."
 else
     echo "Update canceled."
