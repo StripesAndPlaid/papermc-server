@@ -10,7 +10,7 @@ timeout=30 # In seconds
 save_world() {
     start_line=$(wc -l < "$log_file")
     
-    # Disable autosave and save the world
+    # Disable autosave and manually save the world
     screen -S minecraft-server -X stuff "say Backing up server...^M"
     screen -S minecraft-server -X stuff "save-off^M"
     screen -S minecraft-server -X stuff "save-all flush^M"
@@ -18,12 +18,14 @@ save_world() {
     elapsed=0
     while (( elapsed <= $timeout )); do
         printf "\rSaving world (%d/%ds)... " "$elapsed" $timeout
+
+        # Check the log file for "Saved the game" message
         new_lines=$(tail -n +"$start_line" "$log_file")
-        # Check the logs to make sure the save was successful
         if echo "$new_lines" | grep -q "Saved the game"; then
             echo "done!"
             return
         fi
+
         sleep 1
         (( elapsed++ ))
     done
