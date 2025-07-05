@@ -31,7 +31,7 @@ save_world() {
     screen -S minecraft-server -X stuff "say Failed to save world. Backup cancelled.^M"
     screen -S minecraft-server -X stuff "save-on^M"
 
-    echo "Failed to save the world. Cancelling backup."
+    echo "Failed to save world. Backup cancelled."
     exit 1
 }
 
