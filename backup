@@ -4,7 +4,6 @@ backup_dir="/home/minecraft/backup"
 server_dir="/home/minecraft/server"
 
 max_file_count=12
-timeout=30 # In seconds
 
 save_world() {
     screen -S minecraft-server -X stuff "say Backing up server...^M"
@@ -17,6 +16,7 @@ save_world() {
     start_line=$(wc -l < "$log_file")
 
     elapsed=0
+    timeout=30 # In seconds
     while (( elapsed <= $timeout )); do
         printf "\rSaving world (%d/%ds)... " "$elapsed" $timeout
 
