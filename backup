@@ -6,18 +6,20 @@ server_dir="/home/minecraft/server"
 max_file_count=12
 
 save_world() {
-    # Disable autosave and manually save the world
     screen -S minecraft-server -X stuff "say Backing up server...^M"
-    screen -S minecraft-server -X stuff "save-off^M"
-    screen -S minecraft-server -X stuff "save-all flush^M"
+    sleep 1
 
     log_file="$server_dir/logs/latest.log"
     start_line=$(wc -l < "$log_file")
 
+    # Disable autosave and manually save the world
+    screen -S minecraft-server -X stuff "save-off^M"
+    screen -S minecraft-server -X stuff "save-all flush^M"
+
     elapsed=0
     timeout=30 # In seconds
     while (( elapsed <= $timeout )); do
-        printf "\rSaving world (%d/%ds)... " "$elapsed" $timeout
+        printf "\rSaving world (%d/%ds)... " $elapsed $timeout
 
         # Check the log file for "Saved the game" message
         new_lines=$(tail -n +"$start_line" "$log_file")
