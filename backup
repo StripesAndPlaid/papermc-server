@@ -2,18 +2,19 @@
 
 backup_dir="/home/minecraft/backup"
 server_dir="/home/minecraft/server"
-log_file="$server_dir/logs/latest.log"
 
-max_file_count=10
+max_file_count=12
 timeout=30 # In seconds
 
 save_world() {
-    start_line=$(wc -l < "$log_file")
-    
-    # Disable autosave and manually save the world
     screen -S minecraft-server -X stuff "say Backing up server...^M"
+
+    # Disable autosave and manually save the world
     screen -S minecraft-server -X stuff "save-off^M"
     screen -S minecraft-server -X stuff "save-all flush^M"
+
+    log_file="$server_dir/logs/latest.log"
+    start_line=$(wc -l < "$log_file")
 
     elapsed=0
     while (( elapsed <= $timeout )); do
