@@ -18,22 +18,11 @@ if ! command -v jq >/dev/null 2>&1; then
     exit 1
 fi
 
-# Ensure the version file exists
-if [[ ! -f "$version_file" ]]; then
-    echo "Error: $version_file not found."
-    exit 1
-fi
-
 # Check if the server is running
 if screen -ls | grep -qF "minecraft-server"; then
     echo "Server is running. Please stop the server before updating."
     exit 1
 fi
-
-# Read current version info from JSON
-version_info=$(jq -r '.currentVersion' "$version_file")
-current_version=$(echo "$version_info" | cut -d '-' -f1)
-current_build=$(echo "$version_info" | cut -d '-' -f2)
 
 # Determine target version
 if [[ $# -eq 0 ]]; then
@@ -50,7 +39,15 @@ fi
 # Get latest stable build for the version
 build=$(curl -s "$paper_api/$version/builds?channel=STABLE" | jq -r '.[0].id')
 
-echo "Current Version: $current_version (Build $current_build)"
+# Check if version file exists
+if [[ -f "$version_file" ]]; then
+    # Read current version info from JSON
+    version_info=$(jq -r '.currentVersion' "$version_file")
+    current_version=$(echo "$version_info" | cut -d '-' -f1)
+    current_build=$(echo "$version_info" | cut -d '-' -f2)
+    echo "Current Version: $current_version (Build $current_build)"
+fi
+
 if [[ -z "$build" || "$build" == "null" ]]; then
     echo "New Version:     $version (no stable build available)"
     echo "Unable to update - no stable build found for the selected version."
