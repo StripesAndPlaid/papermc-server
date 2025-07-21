@@ -20,9 +20,14 @@ restore() {
     if tar -xzf "$1" -C "$server_dir"; then
         echo "done!"
     else
-        echo "Failed to extract the archive."
+        echo "Error: Failed to extract the archive."
         exit 1
     fi
+}
+
+confirm() {
+    read -rp "Restoring $(basename \"$1\") will remove all current server data. Do you wish to continue? [y/N] " confirm
+    [[ "$confirm" =~ ^[Yy]$ ]]
 }
 
 while getopts ":f" opt; do
@@ -36,7 +41,7 @@ while getopts ":f" opt; do
             ;;
     esac
 done
-shift $(( OPTIND - 1 ))  # Move to the next non-option argument
+shift $(( OPTIND - 1 )) # Move to the next non-option argument
 
 # Check if the archive file is provided
 if (( $# == 0 )); then
@@ -44,31 +49,25 @@ if (( $# == 0 )); then
     usage
 fi
 
+# Check if the provided archive file exists
+if [[ ! -f "$1" ]]; then
+    echo "Error: Archive file \"$1\" does not exist."
+    exit 1
+fi
+
 if screen -ls | grep -qF "minecraft-server"; then
-    # Server is running, check if force is set
     if [[ $force == true ]]; then
-        echo "Force stopping and restarting server..."
         /home/minecraft/scripts/stop
         restore "$1"
         /home/minecraft/scripts/start
     else
-        echo "Server is running... Stop the server before restoring."
+        echo "Error: Server is running. Stop the server before restoring."
+        exit 1
     fi
 else
-    if [[ -f "$1" ]]; then
-        # Proceed with the restore if server is not running
-        if [[ $force == true ]]; then
-            restore "$1"
-        else
-            read -rp "Restoring $(basename \"$1\") will remove all current server data. Do you wish to continue? [y/N] " confirm
-            if [[ "$confirm" =~ ^[Yy]$ ]]; then
-                restore "$1"
-            else
-                echo "Aborting..."
-                exit 0
-            fi
-        fi
+    if [[ $force == true ]] || confirm "$1"; then
+        restore "$1"
     else
-        echo "Archive file \"$1\" does not exist."
+        echo "Aborting..."
     fi
 fi
