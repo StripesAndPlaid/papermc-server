@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! screen -ls | grep -qF "minecraft-server"; then
+    echo "Server isn't running."
+    exit 0
+fi
+
 timeout=30 # In seconds
 
 # Stop the server
