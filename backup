@@ -1,22 +1,22 @@
 #!/bin/bash
 
-backup_dir="/home/minecraft/backup"
-server_dir="/home/minecraft/server"
-
-max_file_count=28
+BACKUP_DIR="/home/minecraft/backup"
+SERVER_DIR="/home/minecraft/server"
+MAX_FILE_COUNT=28
 
 save_world() {
-    screen -S minecraft-server -X stuff "say Backing up server...^M"
+    send_to_server "say Backing up server..."
     sleep 0.1 # Ensure the message is sent before the save command runs
 
-    log_file="$server_dir/logs/latest.log"
-    start_line=$(wc -l < "$log_file")
+    local log_file="$SERVER_DIR/logs/latest.log"
+    local start_line=$(wc -l < "$log_file")
+    local new_lines
+    local timeout=30 # In seconds
+    local elapsed=0
 
-    screen -S minecraft-server -X stuff "save-off^M"
-    screen -S minecraft-server -X stuff "save-all flush^M"
-
-    elapsed=0
-    timeout=30 # In seconds
+    send_to_server "save-off" # Disable autosave
+    send_to_server "save-all flush" # Save world manually
+    
     while (( elapsed <= $timeout )); do
         printf "\rSaving world (%d/%ds)... " $elapsed $timeout
 
@@ -30,11 +30,15 @@ save_world() {
         sleep 1 && (( elapsed++ ))
     done
 
-    screen -S minecraft-server -X stuff "save-on^M"
-    screen -S minecraft-server -X stuff "say Failed to save world. Backup cancelled.^M"
+    send_to_server "save-on"
+    send_to_server "say Failed to save world. Backup cancelled."
 
     echo "Failed to save world. Backup cancelled."
     exit 1
+}
+
+send_to_server() {
+    screen -S minecraft-server -X stuff "$1^M"
 }
 
 if screen -ls | grep -qF "minecraft-server"; then
@@ -42,25 +46,25 @@ if screen -ls | grep -qF "minecraft-server"; then
 fi
 
 # Count existing backups
-file_count=$(ls "$backup_dir" | wc -l)
+file_count=$(ls "$BACKUP_DIR" | wc -l)
 
 # Remove oldest backup if exceeding limit
-if (( file_count >= max_file_count )); then
-    rm "$backup_dir/world-$max_file_count.tgz" && (( file_count-- ))
+if (( file_count >= MAX_FILE_COUNT )); then
+    rm "$BACKUP_DIR/world-$MAX_FILE_COUNT.tgz" && (( file_count-- ))
 fi
 
 # Rename backups to maintain order
 for (( i = file_count; i > 0; i-- )); do
-    mv "$backup_dir/world-$i.tgz" "$backup_dir/world-$((i+1)).tgz"
+    mv "$BACKUP_DIR/world-$i.tgz" "$BACKUP_DIR/world-$((i+1)).tgz"
 done
 
 # Create a new backup
 printf "Creating backup... "
-tar -czf "$backup_dir/world-1.tgz" -C "$server_dir" "world" "world_nether" "world_the_end"
+tar -czf "$BACKUP_DIR/world-1.tgz" -C "$SERVER_DIR" "world" "world_nether" "world_the_end"
 echo "done!"
 
 # Re-enable autosave
 if screen -ls | grep -qF "minecraft-server"; then
-    screen -S minecraft-server -X stuff "save-on^M"
-    screen -S minecraft-server -X stuff "say Backup complete!^M"
+    send_to_server "save-on"
+    send_to_server "say Backup complete!"
 fi
