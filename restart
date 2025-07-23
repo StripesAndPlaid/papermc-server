@@ -1,6 +1,7 @@
 #!/bin/bash
 
 countdown=false
+warnings=(1800 300 60 30 10 9 8 7 6 5 4 3 2 1) # In seconds before shutdown
 
 usage() {
     echo "Usage: $(basename "$0") [-c]"
@@ -10,57 +11,38 @@ usage() {
     exit 1
 }
 
+countdown() {
+    for (( i = 0; i < ${#warnings[@]}; i++ )); do
+        screen -S minecraft-server -X stuff "say The server will restart in $(get_time_label ${warnings[i]})^M"
+        sleep $(( warnings[i] - warnings[i+1] ))
+    done
+}
+
 get_time_label() {
-    local time_label
+    local time_label mins
 
     # Set time_label based on time value (minutes or seconds)
-    if (( $1 / 60 > 0 )); then
-        # If warning is 1 minute, use singular "minute", otherwise pluralize
-        if (( $1 / 60 == 1 )); then
-            time_label="1 minute"
-        else
-            time_label="$(( $1 / 60 )) minutes"
-        fi
+    if (( $1 >= 60 )); then
+        mins=$(( $1 / 60 ))
+        time_label="$mins minute"
+        [[ $mins -ne 1 ]] && time_label+="s"
     else
-        # If warning is 1 second, use singular "second", otherwise pluralize
-        if (( $1 == 1 )); then
-            time_label="1 second"
-        else
-            time_label="$1 seconds"
-        fi
+        time_label="$1 second"
+        [[ $1 -ne 1 ]] && time_label+="s"
     fi
 
     echo "$time_label"
 }
 
-# Check for options
-while getopts ":c" opt; do
-    case "$opt" in
-        c) countdown=true ;;
-        ?) echo "Invalid option: -$OPTARG" >&2; usage ;;
-    esac
-done
-shift $(( OPTIND - 1 ))
+case "$1" in
+    -c) countdown=true ;;
+    *) echo "Invalid option: $1"; usage ;;
+esac
 
 # Check if server is running
-if screen -ls | grep -qF "minecraft-server" && [[ "$countdown" == true ]]; then
-    message="The server will restart in"
-    total_time=1800 # Countdown in seconds
-    end_time=$(( SECONDS + total_time ))  # Absolute time when restart should happen
-    
-    # Define warning intervals (in seconds before restart)
-    warnings=($total_time 600 300 60 10 9 8 7 6 5 4 3 2 1)
-    i=0
-
-    while (( SECONDS < end_time )); do
-        if (( i < ${#warnings[@]} && end_time - SECONDS <= warnings[i] )); then
-            # Send warning to server
-            screen -S minecraft-server -X stuff "say $message $(get_time_label ${warnings[i]})^M"
-            (( i++ ))
-        fi
-        sleep 1
-    done
+if screen -ls | grep -qF "minecraft-server"; then
+    [[ "$countdown" == true ]] && countdown
+    /home/minecraft/scripts/stop
 fi
 
-/home/minecraft/scripts/stop
 /home/minecraft/scripts/start
