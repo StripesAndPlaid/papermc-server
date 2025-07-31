@@ -1,6 +1,7 @@
 #!/bin/bash
 
-server_dir="/home/minecraft/server"
+SERVER_DIR="/home/minecraft/server"
+
 force=false
 
 usage() {
@@ -15,9 +16,9 @@ usage() {
 restore() {
     printf "Restoring $(basename \"$1\")... "
     
-    rm -r "$server_dir/world" "$server_dir/world_nether" "$server_dir/world_the_end"
+    rm -r "$SERVER_DIR/world" "$SERVER_DIR/world_nether" "$SERVER_DIR/world_the_end"
     
-    if tar -xzf "$1" -C "$server_dir"; then
+    if tar -xzf "$1" -C "$SERVER_DIR"; then
         echo "done!"
     else
         echo "Error: Failed to extract the archive."

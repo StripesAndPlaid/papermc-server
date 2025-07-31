@@ -1,7 +1,8 @@
 #!/bin/bash
 
+WARNINGS=(1800 300 60 30 10 9 8 7 6 5 4 3 2 1) # In seconds before shutdown
+
 countdown=false
-warnings=(1800 300 60 30 10 9 8 7 6 5 4 3 2 1) # In seconds before shutdown
 
 usage() {
     echo "Usage: $(basename "$0") [-c]"
@@ -12,9 +13,9 @@ usage() {
 }
 
 countdown() {
-    for (( i = 0; i < ${#warnings[@]}; i++ )); do
-        screen -S minecraft-server -X stuff "say The server will restart in $(get_time_label ${warnings[i]})^M"
-        sleep $(( warnings[i] - warnings[i+1] ))
+    for (( i = 0; i < ${#WARNINGS[@]}; i++ )); do
+        screen -S minecraft-server -X stuff "say The server will restart in $(get_time_label ${WARNINGS[i]})^M"
+        sleep $(( WARNINGS[i] - WARNINGS[i+1] ))
     done
 }
 

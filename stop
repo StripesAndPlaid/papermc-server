@@ -1,20 +1,20 @@
 #!/bin/bash
 
+TIMEOUT=30 # In seconds
+
 if ! screen -ls | grep -qF "minecraft-server"; then
     echo "Server isn't running."
     exit 0
 fi
-
-timeout=30 # In seconds
 
 # Stop the server
 screen -S minecraft-server -X stuff "stop^M"
 
 # Wait for the server to exit cleanly
 while screen -ls | grep -qF "minecraft-server"; do
-    printf "\rStopping server (%d/%ds)... " $SECONDS $timeout
-    if (( SECONDS >= timeout )); then
-        printf "\nError: Server did not stop within $timeout seconds.\n"
+    printf "\rStopping server (%d/%ds)... " $SECONDS $TIMEOUT
+    if (( SECONDS >= TIMEOUT )); then
+        printf "\nError: Server did not stop within $TIMEOUT seconds.\n"
         exit 1
     fi
     sleep 1

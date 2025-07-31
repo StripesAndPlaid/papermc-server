@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# Server directory
-server_dir="/home/minecraft/server"
-
-# Memory allocation
-memory_min="6G"
-memory_max="6G"
+SERVER_DIR="/home/minecraft/server"
+MEMORY_MIN="6G"
+MEMORY_MAX="6G"
 
 # Aikar's recommended JVM flags
 jvm_flags=(
@@ -34,7 +31,7 @@ jvm_flags=(
 # Check if server is already running
 if ! screen -ls | grep -qF "minecraft-server"; then
     printf "Starting server... "
-    screen -dmS minecraft-server bash -c "cd '$server_dir' && java -Xms$memory_min -Xmx$memory_max ${jvm_flags[*]} -jar paper.jar nogui"
+    screen -dmS minecraft-server bash -c "cd '$SERVER_DIR' && java -Xms$MEMORY_MIN -Xmx$MEMORY_MAX ${jvm_flags[*]} -jar paper.jar nogui"
 else
     printf "Server is already running. "
 fi
