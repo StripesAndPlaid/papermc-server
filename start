@@ -1,8 +1,8 @@
 #!/bin/bash
 
 SERVER_DIR="/home/minecraft/server"
-MEMORY_MIN="6G"
-MEMORY_MAX="6G"
+MEMORY_MIN="8G"
+MEMORY_MAX="8G"
 
 # Aikar's recommended JVM flags
 jvm_flags=(
