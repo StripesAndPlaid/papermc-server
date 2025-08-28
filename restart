@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WARNINGS=(1800 300 60 30 10 9 8 7 6 5 4 3 2 1) # In seconds before shutdown
+WARNINGS=(600 300 60 30 10 9 8 7 6 5 4 3 2 1) # In seconds before shutdown
 
 countdown=false
 
