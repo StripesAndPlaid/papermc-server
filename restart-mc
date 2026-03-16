@@ -1,51 +1,52 @@
 #!/bin/bash
 
-WARNINGS=(600 300 60 30 10 9 8 7 6 5 4 3 2 1) # In seconds before shutdown
-
-countdown=false
+# Warnings in seconds before shutdown
+WARNINGS=(600 300 60 30 10 9 8 7 6 5 4 3 2 1)
 
 usage() {
-    echo "Usage: $(basename "$0") [-c]"
-    echo
-    echo "Options:"
-    echo "  -c  Enable countdown before restart"
-    exit 1
+  echo "Usage: $(basename "$0") [-c]"
+  echo
+  echo "Options:"
+  echo "  -c  Enable countdown before restart"
+  exit 1
 }
 
 countdown() {
-    for (( i = 0; i < ${#WARNINGS[@]}; i++ )); do
-        screen -S minecraft-server -X stuff "say The server will restart in $(get_time_label ${WARNINGS[i]})^M"
-        sleep $(( WARNINGS[i] - WARNINGS[i+1] ))
-    done
+  for (( i = 0; i < ${#WARNINGS[@]}; i++ )); do
+    screen -S minecraft-server -X stuff "say The server will restart in $(get_time_label ${WARNINGS[i]})^M"
+    sleep $(( WARNINGS[i] - WARNINGS[i+1] ))
+  done
 }
 
 get_time_label() {
-    local time_label mins
+  local time_label mins
 
-    # Set time_label based on time value (minutes or seconds)
-    if (( $1 >= 60 )); then
-        mins=$(( $1 / 60 ))
-        time_label="$mins minute"
-        [[ $mins -ne 1 ]] && time_label+="s"
-    else
-        time_label="$1 second"
-        [[ $1 -ne 1 ]] && time_label+="s"
-    fi
+  # Set time_label based on time value (minutes or seconds)
+  if (( $1 >= 60 )); then
+    mins=$(( $1 / 60 ))
+    time_label="$mins minute"
+    [[ $mins -ne 1 ]] && time_label+="s"
+  else
+    time_label="$1 second"
+    [[ $1 -ne 1 ]] && time_label+="s"
+  fi
 
-    echo "$time_label"
+  echo "$time_label"
 }
 
+countdown=false
+
 if [[ $# -gt 0 ]]; then
-    case "$1" in
-        -c) countdown=true ;;
-        *) echo "Invalid option: $1"; usage ;;
-    esac
+  case "$1" in
+    -c) countdown=true ;;
+    *) echo "Invalid option: $1"; usage ;;
+  esac
 fi
 
 # Check if server is running
 if screen -ls | grep -qF "minecraft-server"; then
-    [[ "$countdown" == true ]] && countdown
-    /home/minecraft/scripts/stop-mc
+  [[ "$countdown" == true ]] && countdown
+  /home/minecraft/scripts/stop-mc
 fi
 
 /home/minecraft/scripts/start-mc

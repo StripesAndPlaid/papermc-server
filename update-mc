@@ -4,35 +4,35 @@ PAPER_API="https://fill.papermc.io/v3/projects/paper/versions"
 VERSION_FILE="/home/minecraft/server/version_history.json"
 
 usage() {
-    echo "Usage: $(basename "$0") [version]"
-    echo
-    echo "Options:"
-    echo "  version  The specific Paper version to update to."
-    exit 1
+  echo "Usage: $(basename "$0") [version]"
+  echo
+  echo "Options:"
+  echo "  version  The specific Paper version to update to."
+  exit 1
 }
 
 # Check if jq is installed
 if ! command -v jq >/dev/null 2>&1; then
-    echo "Error: jq is not installed. Please install jq and try again."
-    exit 1
+  echo "Error: jq is not installed. Please install jq and try again."
+  exit 1
 fi
 
 # Check if the server is running
 if screen -ls | grep -qF "minecraft-server"; then
-    echo "Server is running. Please stop the server before updating."
-    exit 1
+  echo "Server is running. Please stop the server before updating."
+  exit 1
 fi
 
 # Determine target version
 if [[ $# -eq 0 ]]; then
-    version=$(curl -s "$PAPER_API" | jq -r '.versions[0].version.id')
-    echo "No version specified. Using latest available: $version"
+  version=$(curl -s "$PAPER_API" | jq -r '.versions[0].version.id')
+  echo "No version specified. Using latest available: $version"
 else
-    version="$1"
-    if [[ $(curl -s -o /dev/null -w "%{http_code}" "$PAPER_API/$version") -ne 200 ]]; then
-        echo "Invalid Paper version: $version"
-        exit 1
-    fi
+  version="$1"
+  if [[ $(curl -s -o /dev/null -w "%{http_code}" "$PAPER_API/$version") -ne 200 ]]; then
+    echo "Invalid Paper version: $version"
+    exit 1
+  fi
 fi
 
 # Get latest stable build for the version
@@ -40,35 +40,35 @@ build=$(curl -s "$PAPER_API/$version/builds?channel=STABLE" | jq -r '.[0].id')
 
 # Check if version file exists
 if [[ -f "$VERSION_FILE" ]]; then
-    # Read current version info from JSON
-    version_info=$(jq -r '.currentVersion' "$VERSION_FILE")
-    current_version=$(echo "$version_info" | cut -d '-' -f1)
-    current_build=$(echo "$version_info" | cut -d '-' -f2)
-    echo "Current Version: $current_version (Build $current_build)"
+  # Read current version info from JSON
+  version_info=$(jq -r '.currentVersion' "$VERSION_FILE")
+  current_version=$(echo "$version_info" | cut -d '-' -f1)
+  current_build=$(echo "$version_info" | cut -d '-' -f2)
+  echo "Current Version: $current_version (Build $current_build)"
 fi
 
 if [[ -z "$build" || "$build" == "null" ]]; then
-    echo "New Version:     $version (no stable build available)"
-    echo "Unable to update - no stable build found for the selected version."
-    exit 1
+  echo "New Version:     $version (no stable build available)"
+  echo "Unable to update - no stable build found for the selected version."
+  exit 1
 else
-    echo "New Version:     $version (Build $build)"
+  echo "New Version:     $version (Build $build)"
 fi
 
 # If already up to date
 if [[ "$current_version" == "$version" && "$current_build" == "$build" ]]; then
-    echo "You are running the latest build for the selected version."
-    exit 0
+  echo "You are running the latest build for the selected version."
+  exit 0
 fi
 
 # Prompt user to update
 read -rp "Update available. Proceed with update to $version (Build $build)? [y/N]: " confirm
 if [[ "$confirm" =~ ^[Yy]$ ]]; then
-    download_url=$(curl -s "$PAPER_API/$version/builds/$build" | jq -r '.downloads["server:default"].url')
-    echo "Downloading server jar..."
-    echo $download_url
-    curl -o /home/minecraft/server/paper.jar $download_url
-    echo "Update complete. You can now restart your server."
+  download_url=$(curl -s "$PAPER_API/$version/builds/$build" | jq -r '.downloads["server:default"].url')
+  echo "Downloading server jar..."
+  echo $download_url
+  curl -o /home/minecraft/server/paper.jar $download_url
+  echo "Update complete. You can now restart your server."
 else
-    echo "Update canceled."
+  echo "Update canceled."
 fi
