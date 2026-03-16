@@ -36,4 +36,4 @@ else
     printf "Server is already running. "
 fi
 
-echo "Run \"mc\" to attach."
+echo "Run \"screen -dr minecraft-server\" to attach."
