@@ -35,10 +35,12 @@ get_time_label() {
     echo "$time_label"
 }
 
-case "$1" in
-    -c) countdown=true ;;
-    *) echo "Invalid option: $1"; usage ;;
-esac
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        -c) countdown=true ;;
+        *) echo "Invalid option: $1"; usage ;;
+    esac
+fi
 
 # Check if server is running
 if screen -ls | grep -qF "minecraft-server"; then
