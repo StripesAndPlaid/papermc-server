@@ -45,7 +45,7 @@ fi
 # Check if server is running
 if screen -ls | grep -qF "minecraft-server"; then
     [[ "$countdown" == true ]] && countdown
-    /home/minecraft/scripts/stop
+    /home/minecraft/scripts/stop-mc
 fi
 
-/home/minecraft/scripts/start
+/home/minecraft/scripts/start-mc

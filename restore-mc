@@ -45,7 +45,7 @@ done
 shift $(( OPTIND - 1 )) # Move to the next non-option argument
 
 # Check if the archive file is provided
-if (( $# == 0 )); then
+if [[ $# -eq 0 ]]; then
     echo "Error: Archive file must be provided."
     usage
 fi
@@ -58,9 +58,9 @@ fi
 
 if screen -ls | grep -qF "minecraft-server"; then
     if [[ $force == true ]]; then
-        /home/minecraft/scripts/stop
+        /home/minecraft/scripts/stop-mc
         restore "$1"
-        /home/minecraft/scripts/start
+        /home/minecraft/scripts/start-mc
     else
         echo "Error: Server is running. Stop the server before restoring."
         exit 1
