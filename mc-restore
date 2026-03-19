@@ -58,9 +58,9 @@ fi
 
 if screen -ls | grep -qF "minecraft-server"; then
   if [[ $force == true ]]; then
-    /home/minecraft/scripts/stop-mc
+    /home/minecraft/scripts/mc-stop
     restore "$1"
-    /home/minecraft/scripts/start-mc
+    /home/minecraft/scripts/mc-start
   else
     echo "Error: Server is running. Stop the server before restoring."
     exit 1
