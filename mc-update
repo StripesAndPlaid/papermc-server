@@ -31,7 +31,7 @@ else
   version="$1"
   if [[ $(curl -s -o /dev/null -w "%{http_code}" "$PAPER_API/$version") -ne 200 ]]; then
     echo "Invalid Paper version: $version"
-    exit 1
+    usage
   fi
 fi
 
