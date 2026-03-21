@@ -34,8 +34,6 @@ get_time_label() {
   echo "$time_label"
 }
 
-countdown=false
-
 if [[ $# -gt 0 ]]; then
   case "$1" in
     -c) countdown=true ;;

@@ -8,13 +8,13 @@ usage() {
   echo "Usage: $(basename "$0") [-f] [archive]"
   echo
   echo "Options:"
-  echo "  -f       Force stop and restart the server without confirmation."
-  echo "  archive  The path to the backup archive to restore."
+  echo "  -f       Force stop and restart the server without confirmation"
+  echo "  archive  The path to the backup archive to restore"
   exit 1
 }
 
 restore() {
-  printf "Restoring $(basename \"$1\")... "
+  printf "Restoring $(basename \"$1\")..."
 
   rm -r "$SERVER_DIR/world" "$SERVER_DIR/world_nether" "$SERVER_DIR/world_the_end"
 

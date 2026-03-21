@@ -7,7 +7,7 @@ usage() {
   echo "Usage: $(basename "$0") [version]"
   echo
   echo "Options:"
-  echo "  version  The specific Paper version to update to."
+  echo "  version  The specific Paper version to update to (will use latest if not specified)"
   exit 1
 }
 
