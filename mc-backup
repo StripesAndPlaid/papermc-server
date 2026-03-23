@@ -81,4 +81,6 @@ if screen -ls | grep -qF "minecraft-server"; then
   send_to_server "say Backup complete!"
 fi
 
-[[ "$remove_old_backups" == true ]] && remove_old_backups
+if [[ "$remove_old_backups" == true ]]; then
+  remove_old_backups
+fi
