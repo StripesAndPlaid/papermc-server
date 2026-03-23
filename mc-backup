@@ -45,10 +45,8 @@ save_world() {
 }
 
 remove_old_backups() {
-  local file_count=$(ls "$BACKUP_DIR" | wc -l)
-
   # Remove oldest backups if exceeding limit
-  if (( file_count >= MAX_FILE_COUNT )); then
+  if [[ $(ls "$BACKUP_DIR" | wc -l) -gt $MAX_FILE_COUNT ]]; then
     printf "Removing oldest backup(s)... "
     rm $(ls -rtd $BACKUP_DIR/* | head -n -$MAX_FILE_COUNT)
     echo "done!"
