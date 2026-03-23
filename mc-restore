@@ -1,20 +1,20 @@
 #!/bin/bash
 
 SERVER_DIR="/home/minecraft/server"
-
-force=false
+BACKUP_DIR="/home/minecraft/backup"
 
 usage() {
   echo "Usage: $(basename "$0") [-f] [archive]"
   echo
   echo "Options:"
-  echo "  -f       Force stop and restart the server without confirmation"
-  echo "  archive  The path to the backup archive to restore"
+  echo "  -f       Force restart server without confirmation"
+  echo "  -l       Restore latest archive in backup directory"
+  echo "  archive  Path to backup archive"
   exit 1
 }
 
 restore() {
-  printf "Restoring $(basename \"$1\")..."
+  printf "Restoring $1... "
 
   rm -r "$SERVER_DIR/world" "$SERVER_DIR/world_nether" "$SERVER_DIR/world_the_end"
 
@@ -27,14 +27,18 @@ restore() {
 }
 
 confirm() {
-  read -rp "Restoring $(basename \"$1\") will remove all current server data. Do you wish to continue? [y/N] " confirm
+  echo "Restoring \"$1\" will remove all current server data."
+  read -rp "Do you wish to continue? [y/N] " confirm
   [[ "$confirm" =~ ^[Yy]$ ]]
 }
 
-while getopts ":f" opt; do
+while getopts ":fl" opt; do
   case "$opt" in
     f)
       force=true
+      ;;
+    l)
+      latest=true
       ;;
     ?)
       echo "Invalid option: -$OPTARG" >&2
@@ -44,30 +48,37 @@ while getopts ":f" opt; do
 done
 shift $(( OPTIND - 1 )) # Move to the next non-option argument
 
-# Check if the archive file is provided
-if [[ $# -eq 0 ]]; then
-  echo "Error: Archive file must be provided."
-  usage
-fi
-
-# Check if the provided archive file exists
-if [[ ! -f "$1" ]]; then
-  echo "Error: Archive file \"$1\" does not exist."
-  exit 1
+if [[ $latest == true ]]; then
+  if [[ $(ls "$BACKUP_DIR" | wc -l) -eq 0 ]]; then
+    echo "Error: No backups present in $BACKUP_DIR"
+    exit 1
+  fi
+  # Restore latest backup
+  filename=$(ls -td $BACKUP_DIR/* | head -n 1)
+else
+  if [[ $# -eq 0 ]]; then
+    echo "Error: No archive file provided"
+    usage
+  fi
+  if [[ ! -f "$1" ]]; then
+    echo "Error: Archive file \"$1\" does not exist"
+    exit 1
+  fi
+  filename=$1
 fi
 
 if screen -ls | grep -qF "minecraft-server"; then
   if [[ $force == true ]]; then
     /home/minecraft/scripts/mc-stop
-    restore "$1"
+    restore "$filename"
     /home/minecraft/scripts/mc-start
   else
-    echo "Error: Server is running. Stop the server before restoring."
+    echo "Error: Server is running"
     exit 1
   fi
 else
-  if [[ $force == true ]] || confirm "$1"; then
-    restore "$1"
+  if [[ $force == true ]] || confirm "$filename"; then
+    restore "$filename"
   else
     echo "Aborting..."
   fi
