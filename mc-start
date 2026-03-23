@@ -30,10 +30,10 @@ jvm_flags=(
 
 # Check if server is already running
 if ! screen -ls | grep -qF "minecraft-server"; then
-  printf "Starting server... "
+  echo "Starting server..."
   screen -dmS minecraft-server bash -c "cd '$SERVER_DIR' && java -Xms$MEMORY_MIN -Xmx$MEMORY_MAX ${jvm_flags[*]} -jar paper.jar nogui"
 else
-  printf "Server is already running. "
+  echo "Server is already running"
 fi
 
-echo "Run \"screen -dr minecraft-server\" to attach."
+echo "Run \"screen -dr minecraft-server\" to attach"

@@ -8,7 +8,7 @@ usage() {
   echo
   echo "Options:"
   echo "  -f       Force restart server without confirmation"
-  echo "  -l       Restore latest archive in backup directory"
+  echo "  -l       Restore latest archive in $BACKUP_DIR"
   echo "  archive  Path to backup archive"
   exit 1
 }
@@ -21,7 +21,7 @@ restore() {
   if tar -xzf "$1" -C "$SERVER_DIR"; then
     echo "done!"
   else
-    echo "Error: Failed to extract the archive."
+    echo "Error: Failed to extract the archive"
     exit 1
   fi
 }
@@ -62,7 +62,7 @@ else
   fi
   if [[ ! -f "$1" ]]; then
     echo "Error: Archive file \"$1\" does not exist"
-    exit 1
+    usage
   fi
   filename=$1
 fi

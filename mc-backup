@@ -25,7 +25,7 @@ save_world() {
   send_to_server "save-all flush" # Save world manually
 
   while (( elapsed <= $timeout )); do
-    printf "\rSaving world (%d/%ds)..." $elapsed $timeout
+    printf "\rSaving world (%d/%ds)... " $elapsed $timeout
 
     # Check log file for "Saved the game" message
     local new_lines=$(tail -n +"$start_line" "$log_file")
@@ -38,9 +38,9 @@ save_world() {
   done
 
   send_to_server "save-on"
-  send_to_server "say Failed to save world. Backup cancelled."
+  send_to_server "say Failed to save world"
 
-  echo "Failed to save world. Backup cancelled."
+  echo "Error: Failed to save world"
   exit 1
 }
 
@@ -49,7 +49,7 @@ remove_old_backups() {
 
   # Remove oldest backups if exceeding limit
   if (( file_count >= MAX_FILE_COUNT )); then
-    printf "Removing oldest backup(s)..."
+    printf "Removing oldest backup(s)... "
     rm $(ls -rtd $BACKUP_DIR/* | head -n -$MAX_FILE_COUNT)
     echo "done!"
   fi
@@ -71,7 +71,7 @@ if screen -ls | grep -qF "minecraft-server"; then
 fi
 
 # Create a new backup
-printf "Creating backup..."
+printf "Creating backup... "
 tar -czf "$BACKUP_DIR/$(date +%F-%H-%M-%S).tgz" -C "$SERVER_DIR" "world" "world_nether" "world_the_end"
 echo "done!"
 
