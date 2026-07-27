@@ -3,7 +3,7 @@
 PAPER_API="https://fill.papermc.io/v3/projects/paper"
 USER_AGENT="papermc-utils (https://github.com/StripesAndPlaid/papermc-utils)"
 SERVER_JAR="/home/minecraft/server/paper.jar"
-VERSION_FILE="/home/minecraft/server/version_history.json"
+VERSION_FILE="/home/minecraft/server/.paper/version_history.json"
 
 usage() {
   echo "Usage: $(basename "$0") [-a|-b] [version]"
